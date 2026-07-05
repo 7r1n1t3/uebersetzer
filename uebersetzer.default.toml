@@ -1,0 +1,4 @@
+config_path = "~/.config"
+env_path = "~/.env"
+recursive = false
+force_write = false
