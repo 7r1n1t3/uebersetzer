@@ -23,7 +23,10 @@ pub fn handle_event(event: Event, settings: &settings::Settings) -> Result<(), i
         return Ok(());
     }
 
-    let env_vars = env::load_env(settings.env_path.as_path())?;
+    let env_vars = env::load_env(settings.env_path.as_path()).map_err(|err| match err {
+        dotenvy::Error::Io(err) => err,
+        err => io::Error::new(io::ErrorKind::InvalidData, err),
+    })?;
     uebersetzer::uebersetz(
         settings.config_path.as_path(),
         &env_vars,
