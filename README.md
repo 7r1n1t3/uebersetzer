@@ -1,6 +1,6 @@
 # uebersetzer
 
-uebersetzer is a fast daemon written in Rust that manages your dotfiles' parameters according to your env, following template files you set.
+uebersetzer is a daemon written in Rust that manages your dotfiles' parameters according to your env, following template files you set.
 
 ## Motivation
 
@@ -8,7 +8,6 @@ I wanted that my dotfiles reference my env variables for a uniform style for my 
 
 ## Features
 
-- **Speed**
 - **Universal**: works on any file in your config
 - **Configurable**: edit uebersetzer.toml
 
