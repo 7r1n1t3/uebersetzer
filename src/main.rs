@@ -10,6 +10,7 @@
 use event_handler::handle_event;
 use log::debug;
 use notify::{RecommendedWatcher, RecursiveMode, Watcher};
+use std::collections::HashMap;
 use std::{process, sync::mpsc};
 
 mod env;
@@ -29,6 +30,15 @@ fn main() -> Result<(), notify::Error> {
         }
     };
     debug!("loaded settings: {:?}", settings);
+
+    let env_vars: HashMap<String, String> = env::load_env(Some(settings.env_path.as_path()))
+        .unwrap_or_else(|err| panic!("couldn't load environment variables: {err}"));
+    uebersetzer::uebersetz(
+        settings.config_path.as_path(),
+        &env_vars,
+        Some(settings.recursive),
+        Some(settings.force_write),
+    )?;
 
     let (tx, rx) = mpsc::channel();
 
