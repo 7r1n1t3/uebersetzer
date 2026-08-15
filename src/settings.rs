@@ -17,10 +17,6 @@ const SETTINGS_FILE: &str = "uebersetzer.toml";
 #[derive(Debug, Deserialize, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Settings {
-    /// Uebersetzer config file
-    #[arg(short, long)]
-    config: Option<PathBuf>,
-
     /// Directory where config files live
     #[arg(long)]
     pub config_path: PathBuf,
