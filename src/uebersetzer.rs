@@ -7,20 +7,43 @@
 //
 //  You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 //
-/// uebersetzer logic implementation
-use regex::{Captures, Regex};
 use std::{
     collections::HashMap,
-    env,
-    fs::{self, File},
-    io::{self, BufRead, Write},
+    fs, io,
     path::{Path, PathBuf},
 };
+use tera::{Context, Tera};
 
-use crate::ueber;
+use crate::env::load_env_to_tera_context;
 
 const UEBER_FILE_EXTENSION: &str = ".ueber";
 const TMP_FILE_EXTENSION: &str = "ueber_tmp";
+
+#[derive(thiserror::Error, Debug)]
+pub enum UebersetzError {
+    #[error("filesystem type error: {0}")]
+    IO(String),
+    #[error("tera error: {0}")]
+    Tera(String),
+}
+
+impl From<UebersetzError> for io::Error {
+    fn from(err: UebersetzError) -> Self {
+        std::io::Error::other(err)
+    }
+}
+
+impl From<io::Error> for UebersetzError {
+    fn from(err: io::Error) -> Self {
+        Self::IO(err.to_string())
+    }
+}
+
+impl From<tera::Error> for UebersetzError {
+    fn from(err: tera::Error) -> Self {
+        Self::Tera(err.to_string())
+    }
+}
 
 pub fn uebersetz(
     conf_path: &Path,
@@ -39,9 +62,12 @@ pub fn uebersetz(
                 .unwrap_or_default()
                 .contains(UEBER_FILE_EXTENSION)
         {
-            uebersetz_file(path.as_path(), env_vars, force_write)?;
+            if uebersetz_file(path.as_path(), env_vars, force_write).is_err() {
+                continue;
+            }
+            info!("uebersetzed: {}", path);
         } else if path.is_dir() && recursive.unwrap_or(false) {
-            uebersetz(&path, env_vars, Some(true), force_write)?;
+            uebersetz(&path, env_vars, recursive, force_write)?;
         }
     }
 
@@ -52,45 +78,31 @@ pub fn uebersetz_file(
     src_conf: &Path,
     env_vars: &HashMap<String, String>,
     force_write: Option<bool>,
-) -> Result<(), io::Error> {
+) -> Result<(), UebersetzError> {
+    let force_write = force_write.unwrap_or(false);
+
+    let mut tera = Tera::default();
+    let mut context = Context::new();
+    load_env_to_tera_context(env_vars, &mut context);
+
     let dst_conf_filename: String = src_conf
         .file_name()
         .and_then(|s| s.to_str())
         .unwrap_or_default()
         .replace(UEBER_FILE_EXTENSION, "");
     let dst_conf: PathBuf = src_conf.with_file_name(dst_conf_filename);
-    let bk_conf: PathBuf = dst_conf.with_added_extension("bk");
 
-    if dst_conf.is_file() {
-        if force_write.unwrap_or(false) {
-            fs::copy(dst_conf.as_path(), bk_conf.as_path())?;
-            fs::remove_file(dst_conf.as_path())?;
-        } else {
-            return Ok(());
-        }
+    if dst_conf.is_file() && !force_write {
+        return Ok(());
     }
+
+    tera.add_template_file(src_conf, Some("conf"))?;
+    let rendered = tera.render("conf", &context)?;
 
     let tmp_conf: PathBuf = dst_conf.with_added_extension(TMP_FILE_EXTENSION);
-    let reader = io::BufReader::new(File::open(src_conf)?);
-    let mut writer = io::BufWriter::new(File::create(&tmp_conf)?);
-    let var_placeholder = Regex::new(ueber::VAR_PLACEHOLDER).unwrap();
+    fs::write(&tmp_conf, rendered)?;
 
-    for line in reader.lines() {
-        let line = line?;
-        let parsed = var_placeholder.replace_all(&line, |caps: &Captures<'_>| {
-            env_vars
-                .get(&caps[1])
-                .cloned()
-                .or_else(|| env::var(&caps[1]).ok())
-                .unwrap_or_else(|| caps[0].to_string())
-        });
-
-        writeln!(writer, "{parsed}")?;
-    }
-
-    writer.flush()?;
     fs::rename(tmp_conf, dst_conf)?;
-    fs::remove_file(bk_conf)?;
 
     Ok(())
 }

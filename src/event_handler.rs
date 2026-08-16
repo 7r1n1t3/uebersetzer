@@ -7,7 +7,7 @@
 //
 //  You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 //
-/// event handler
+use log::info;
 use notify::{Event, EventKind};
 use std::io;
 
@@ -24,7 +24,12 @@ pub fn handle_event(event: Event, settings: &settings::Settings) -> Result<(), U
         return Ok(());
     }
 
-    let env_vars = env::load_env(settings.env_path.as_path()).map_err(|err| match err {
+    info!(
+        "detected file change: {}",
+        settings.config_path.as_path().display()
+    );
+
+    let env_vars = env::load_env(Some(settings.env_path.as_path())).map_err(|err| match err {
         dotenvy::Error::Io(err) => err,
         err => io::Error::new(io::ErrorKind::InvalidData, err),
     })?;
@@ -34,6 +39,11 @@ pub fn handle_event(event: Event, settings: &settings::Settings) -> Result<(), U
         Some(settings.recursive),
         Some(settings.force_write),
     )?;
+
+    info!(
+        "done uebersetzing: {}",
+        settings.config_path.as_path().display()
+    );
 
     Ok(())
 }

@@ -17,7 +17,6 @@ mod env;
 mod error;
 mod event_handler;
 mod settings;
-mod ueber;
 mod uebersetzer;
 
 fn main() -> Result<(), notify::Error> {
@@ -32,7 +31,7 @@ fn main() -> Result<(), notify::Error> {
     };
     debug!("loaded settings: {:?}", settings);
 
-    let env_vars: HashMap<String, String> = env::load_env(settings.env_path.as_path())
+    let env_vars: HashMap<String, String> = env::load_env(Some(settings.env_path.as_path()))
         .unwrap_or_else(|err| panic!("couldn't load environment variables: {err}"));
     uebersetzer::uebersetz(
         settings.config_path.as_path(),
@@ -62,6 +61,7 @@ fn main() -> Result<(), notify::Error> {
     for result in rx {
         match result {
             Ok(event) => {
+                debug!("got event: {:?}", event);
                 if let Err(err) = handle_event(event, &settings) {
                     eprintln!("failed to update config: {:?}", err)
                 }
