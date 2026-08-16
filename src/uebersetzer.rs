@@ -19,6 +19,9 @@ use std::{
 
 use crate::ueber;
 
+const UEBER_FILE_EXTENSION: &str = ".ueber";
+const TMP_FILE_EXTENSION: &str = "ueber_tmp";
+
 pub fn uebersetz(
     conf_path: &Path,
     env_vars: &HashMap<String, String>,
@@ -34,7 +37,7 @@ pub fn uebersetz(
                 .into_os_string()
                 .into_string()
                 .unwrap_or_default()
-                .contains(".ueber")
+                .contains(UEBER_FILE_EXTENSION)
         {
             uebersetz_file(path.as_path(), env_vars, force_write)?;
         } else if path.is_dir() && recursive.unwrap_or(false) {
@@ -54,7 +57,7 @@ pub fn uebersetz_file(
         .file_name()
         .and_then(|s| s.to_str())
         .unwrap_or_default()
-        .replace(".ueber", "");
+        .replace(UEBER_FILE_EXTENSION, "");
     let dst_conf: PathBuf = src_conf.with_file_name(dst_conf_filename);
     let bk_conf: PathBuf = dst_conf.with_added_extension("bk");
 
@@ -67,7 +70,7 @@ pub fn uebersetz_file(
         }
     }
 
-    let tmp_conf: PathBuf = dst_conf.with_added_extension("ueber_tmp");
+    let tmp_conf: PathBuf = dst_conf.with_added_extension(TMP_FILE_EXTENSION);
     let reader = io::BufReader::new(File::open(src_conf)?);
     let mut writer = io::BufWriter::new(File::create(&tmp_conf)?);
     let var_placeholder = Regex::new(ueber::VAR_PLACEHOLDER).unwrap();
