@@ -7,6 +7,7 @@
 //
 //  You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 //
+use log::debug;
 use std::{
     collections::HashMap,
     fs, io,
@@ -71,6 +72,7 @@ pub fn uebersetz(
                 .to_string_lossy()
                 .contains(UEBER_FILE_EXTENSION)
         {
+            debug!("uebersetzing file: {:?}", entry);
             uebersetz_file(entry.path(), env_vars, force_write)?;
         }
     }
@@ -105,6 +107,7 @@ pub fn uebersetz_file(
 
     let tmp_conf: PathBuf = dst_conf.with_added_extension(TMP_FILE_EXTENSION);
     fs::write(&tmp_conf, rendered)?;
+    debug!("writing to: {:?} ", dst_conf);
 
     fs::rename(tmp_conf, dst_conf)?;
 
