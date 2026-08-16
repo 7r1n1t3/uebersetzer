@@ -12,10 +12,11 @@ use notify::{Event, EventKind};
 use std::io;
 
 use crate::env;
+use crate::error::UebersetzError;
 use crate::settings;
 use crate::uebersetzer;
 
-pub fn handle_event(event: Event, settings: &settings::Settings) -> Result<(), io::Error> {
+pub fn handle_event(event: Event, settings: &settings::Settings) -> Result<(), UebersetzError> {
     let changed = matches!(event.kind, EventKind::Modify(_) | EventKind::Create(_))
         && event.paths.iter().any(|p| p == &settings.env_path);
 
