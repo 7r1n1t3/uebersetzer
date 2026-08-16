@@ -87,10 +87,6 @@ pub fn uebersetz_file(
 ) -> Result<(), UebersetzError> {
     let force_write = force_write.unwrap_or(false);
 
-    let mut tera = Tera::default();
-    let mut context = Context::new();
-    load_env_to_tera_context(env_vars, &mut context);
-
     let dst_conf_filename: String = src_conf
         .file_name()
         .and_then(|s| s.to_str())
@@ -101,6 +97,10 @@ pub fn uebersetz_file(
     if dst_conf.is_file() && !force_write {
         return Ok(());
     }
+
+    let mut tera = Tera::default();
+    let mut context = Context::new();
+    load_env_to_tera_context(env_vars, &mut context);
 
     tera.add_template_file(src_conf, Some("conf"))?;
     let rendered = tera.render("conf", &context)?;
