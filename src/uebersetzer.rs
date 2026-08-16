@@ -16,6 +16,7 @@ use tera::{Context, Tera};
 
 use crate::env::load_env_to_tera_context;
 
+use walkdir::WalkDir;
 const UEBER_FILE_EXTENSION: &str = ".ueber";
 const TMP_FILE_EXTENSION: &str = "ueber_tmp";
 
@@ -51,23 +52,26 @@ pub fn uebersetz(
     recursive: Option<bool>,
     force_write: Option<bool>,
 ) -> Result<(), io::Error> {
-    for entry in fs::read_dir(conf_path)? {
-        let path: PathBuf = entry?.path();
+    let max_depth = if recursive.unwrap_or(false) {
+        usize::MAX
+    } else {
+        1
+    };
 
-        if path.is_file()
-            && path
-                .to_owned()
-                .into_os_string()
-                .into_string()
-                .unwrap_or_default()
+    for entry in WalkDir::new(conf_path)
+        .min_depth(1)
+        .max_depth(max_depth)
+        .follow_links(false)
+    {
+        let entry = entry.map_err(io::Error::other)?;
+
+        if entry.file_type().is_file()
+            && entry
+                .file_name()
+                .to_string_lossy()
                 .contains(UEBER_FILE_EXTENSION)
         {
-            if uebersetz_file(path.as_path(), env_vars, force_write).is_err() {
-                continue;
-            }
-            info!("uebersetzed: {}", path);
-        } else if path.is_dir() && recursive.unwrap_or(false) {
-            uebersetz(&path, env_vars, recursive, force_write)?;
+            uebersetz_file(entry.path(), env_vars, force_write)?;
         }
     }
 

@@ -14,4 +14,5 @@ serde = { version = "1.0.228", features = ["derive"] }
 shellexpand = "3.1.2"
 tera = { version = "2.0.0", features = ["fast"] }
 thiserror = "2.0.18"
+walkdir = "2.5.0"
 xdg = "3.0.0"

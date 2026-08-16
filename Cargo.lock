@@ -928,6 +928,7 @@ dependencies = [
  "shellexpand",
  "tera",
  "thiserror",
+ "walkdir",
  "xdg",
 ]
 
