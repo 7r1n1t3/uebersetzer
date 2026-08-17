@@ -2,15 +2,14 @@ use event_handler::handle_event;
 use log::debug;
 use notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
-use std::{process, sync::mpsc};
+use std::{process, sync::mpsc, error};
 
 mod env;
-mod error;
 mod event_handler;
 mod settings;
 mod uebersetzer;
 
-fn main() -> Result<(), notify::Error> {
+fn main() -> Result<(), Box<dyn error::Error>> {
     env_logger::init();
 
     let settings = match settings::load_settings() {

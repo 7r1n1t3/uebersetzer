@@ -14,28 +14,10 @@ const TMP_FILE_EXTENSION: &str = "ueber_tmp";
 
 #[derive(thiserror::Error, Debug)]
 pub enum UebersetzError {
-    #[error("filesystem type error: {0}")]
-    IO(String),
+    #[error("filesystem error: {0}")]
+    Io(#[from] io::Error),
     #[error("tera error: {0}")]
-    Tera(String),
-}
-
-impl From<UebersetzError> for io::Error {
-    fn from(err: UebersetzError) -> Self {
-        std::io::Error::other(err)
-    }
-}
-
-impl From<io::Error> for UebersetzError {
-    fn from(err: io::Error) -> Self {
-        Self::IO(err.to_string())
-    }
-}
-
-impl From<tera::Error> for UebersetzError {
-    fn from(err: tera::Error) -> Self {
-        Self::Tera(err.to_string())
-    }
+    Tera(#[from] tera::Error),
 }
 
 pub fn uebersetz(
@@ -43,7 +25,7 @@ pub fn uebersetz(
     env_vars: &HashMap<String, String>,
     recursive: Option<bool>,
     force_write: Option<bool>,
-) -> Result<(), io::Error> {
+) -> Result<(), UebersetzError> {
     let max_depth = if recursive.unwrap_or(false) {
         usize::MAX
     } else {
