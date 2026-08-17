@@ -24,7 +24,7 @@ post_package_bump_hooks = []
 [changelog]
 path = "CHANGELOG.md"
 owner = "Rayen Daadaa"
-remote = "git.hlsec.top"
+remote = "codeberg.org"
 repository = "uebersetzer"
 
 authors = [{ signature = "Rayen Daadaa", username = "7r1n1t3" }]
