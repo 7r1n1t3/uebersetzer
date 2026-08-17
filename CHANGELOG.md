@@ -2,6 +2,40 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.2.0 - 2026-08-17
+#### Features
+- skip writes when output is unchanged - (4f1a7d6) - 7r1n1t3
+- traverse conf_path using walkdir - (a9065ae) - 7r1n1t3
+- <span style="background-color: #d73a49; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.85em;">BREAKING</span>use tera as templating engine - (d122238) - 7r1n1t3
+- init implementation - (461268f) - 7r1n1t3
+- init commit - (ff9ad1a) - 7r1n1t3
+#### Bug Fixes
+- env directory changes never trigger a re-render - (6c08843) - 7r1n1t3
+#### Documentation
+- remove angular specific examples from contributing - (1599b42) - 7r1n1t3
+- add contribution guidelines - (8bc8b72) - 7r1n1t3
+- rename LICENSE and fix lastname in copyright - (c233de8) - 7r1n1t3
+- declare clearly that license is GPL-3.0+ - (c081b6b) - 7r1n1t3
+- include license in every source code file - (6550678) - 7r1n1t3
+#### Refactoring
+- move Tera setup later - (cc33da4) - 7r1n1t3
+- debug logs before/after uebersetz - (449cac3) - 7r1n1t3
+- set ueber file extensions to const - (10bd3d8) - 7r1n1t3
+- move Uebersetzerror to error.rs - (765d26e) - 7r1n1t3
+- remove redundant config setting - (a41651b) - 7r1n1t3
+- add error context during env loading - (ce66db0) - 7r1n1t3
+- load_env returns dotenvy::Error - (bc3f1d1) - 7r1n1t3
+#### Miscellaneous Chores
+- (**version**) 0.1.0 - (4134b8a) - 7r1n1t3
+- remove license block at top of source files - (12325aa) - 7r1n1t3
+- remove unused dependency - (172f14a) - 7r1n1t3
+- add prek - (a05ff5b) - 7r1n1t3
+- disable monorepository global tag generation - (733d247) - 7r1n1t3
+#### Style
+- limit line length - (01f6434) - 7r1n1t3
+
+- - -
+
 ## 0.1.0 - 2026-07-05
 #### Features
 - init implementation - (461268f) - 7r1n1t3
