@@ -26,6 +26,7 @@ pub enum UebersetzState {
     ExistsNoForceWrite,
 }
 
+/// TODO: documentation
 pub fn uebersetz(
     conf_path: &Path,
     env_vars: &HashMap<String, String>,
@@ -59,6 +60,7 @@ pub fn uebersetz(
     Ok(())
 }
 
+/// TODO: documentation
 pub fn uebersetz_file(
     src_conf: &Path,
     env_vars: &HashMap<String, String>,
@@ -102,6 +104,7 @@ pub fn uebersetz_file(
     Ok(UebersetzState::Written)
 }
 
+/// TODO: documentation
 fn get_file_content(file: &Path) -> Result<String, io::Error> {
     fs::read_to_string(file)
 }

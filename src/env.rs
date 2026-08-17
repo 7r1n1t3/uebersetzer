@@ -96,6 +96,7 @@ fn _load_env_dir(dir: &Path, env_vars: &mut HashMap<String, String>) -> Result<(
     Ok(())
 }
 
+/// TODO: documentation
 fn _load_env_vars(env_vars: &mut HashMap<String, String>) -> Result<(), dotenvy::Error> {
     for (key, value) in std::env::vars() {
         env_vars.insert(key, value);
@@ -104,6 +105,7 @@ fn _load_env_vars(env_vars: &mut HashMap<String, String>) -> Result<(), dotenvy:
     Ok(())
 }
 
+/// TODO: documentation
 pub fn load_env_to_tera_context(env: &HashMap<String, String>, context: &mut Context) {
     for (env_var, value) in env {
         context.insert(env_var.clone(), value);

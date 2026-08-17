@@ -27,6 +27,7 @@ pub struct Settings {
     pub force_write: bool,
 }
 
+/// TODO: documentation
 pub fn load_settings() -> Result<Settings, config::ConfigError> {
     let mut builder = Config::builder();
     let xdg = xdg::BaseDirectories::new();
@@ -53,6 +54,7 @@ pub fn load_settings() -> Result<Settings, config::ConfigError> {
     Ok(settings)
 }
 
+/// TODO: documentation
 fn expand_path(path: PathBuf) -> Result<PathBuf, config::ConfigError> {
     let expanded = shellexpand::full(
         path.to_str()
