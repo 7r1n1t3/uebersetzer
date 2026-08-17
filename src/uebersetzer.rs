@@ -20,6 +20,12 @@ pub enum UebersetzError {
     Tera(#[from] tera::Error),
 }
 
+pub enum UebersetzState {
+    Written,
+    UnchangedContent,
+    ExistsNoForceWrite,
+}
+
 pub fn uebersetz(
     conf_path: &Path,
     env_vars: &HashMap<String, String>,
@@ -57,7 +63,7 @@ pub fn uebersetz_file(
     src_conf: &Path,
     env_vars: &HashMap<String, String>,
     force_write: Option<bool>,
-) -> Result<(), UebersetzError> {
+) -> Result<UebersetzState, UebersetzError> {
     let force_write = force_write.unwrap_or(false);
 
     let dst_conf_filename: String = src_conf
@@ -68,7 +74,7 @@ pub fn uebersetz_file(
     let dst_conf: PathBuf = src_conf.with_file_name(dst_conf_filename);
 
     if dst_conf.is_file() && !force_write {
-        return Ok(());
+        return Ok(UebersetzState::ExistsNoForceWrite);
     }
 
     let mut tera = Tera::default();
@@ -78,11 +84,24 @@ pub fn uebersetz_file(
     tera.add_template_file(src_conf, Some("conf"))?;
     let rendered = tera.render("conf", &context)?;
 
+    if rendered == get_file_content(dst_conf.as_path())? {
+        // skip if content of file didn't change
+        debug!(
+            "rendered content is same as file content: {:?}, skipping",
+            dst_conf
+        );
+        return Ok(UebersetzState::UnchangedContent);
+    }
+
     let tmp_conf: PathBuf = dst_conf.with_added_extension(TMP_FILE_EXTENSION);
     fs::write(&tmp_conf, rendered)?;
     debug!("writing to: {:?} ", dst_conf);
 
     fs::rename(tmp_conf, dst_conf)?;
 
-    Ok(())
+    Ok(UebersetzState::Written)
+}
+
+fn get_file_content(file: &Path) -> Result<String, io::Error> {
+    fs::read_to_string(file)
 }
